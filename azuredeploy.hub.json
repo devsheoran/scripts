@@ -37,7 +37,7 @@
             {
               "name": "NicIPConfigName",
               "properties": {
-                "ipAddress": "[parameters('vmStaticIP')]",
+                "privateIPAddress": "[parameters('vmStaticIP')]",
                   "privateIPAddressVersion": "IPv4",
                   "privateIPAllocationMethod": "Static",
                 "subnet": {
@@ -90,7 +90,7 @@
              "provisionVMAgent": true       
             }
           },
-          "allowExtensionOperations": true,
+                    
           "networkProfile": {
             "networkInterfaces": [
               {
@@ -112,19 +112,17 @@
             "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
         ],
         "properties": {
-            "autoUpgradeMinorVersion": true,
+            "autoUpgradeMinorVersion": true,           
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
             "typeHandlerVersion": "1.9",
-            "settings": {
-                "fileUris": [
-                  "https://raw.githubusercontent.com/devsheoran/scripts/master/dnsserversettings.ps1"  
-                ],
-                "commandToExecute": "powershell.exe dnsserversettings.ps1"
+            "settings": {                
+                
+                "commandToExecute": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools"
             },
             "protectedSettings": {}
         }
-    }
+    }     
       
     ]
   }
