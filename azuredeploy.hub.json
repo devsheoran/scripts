@@ -1,0 +1,131 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {        
+      
+      "vmSize": {
+        "type": "string",
+        "defaultValue": "Standard_DS1_v2"
+      },   
+      "vmAdminUsername": {
+        "type": "string"
+      },
+      "vmAdminPassword": {
+        "type": "securestring"
+      },     
+        
+      "vmSubnetId":{
+        "type":"string"
+      },
+      "vmStaticIP":{
+        "type":"string"
+      },
+      "vmName":{
+        "type":"string"
+      }     
+      },
+   
+    "resources": [           
+      {    
+        "apiVersion": "2019-07-01",
+        "comments": "Network Interface for VM",
+        "dependsOn": [],     
+        "location": "[resourceGroup().location]",
+        "name": "[concat(parameters('vmName'), '-nic')]",
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "NicIPConfigName",
+              "properties": {
+                "ipAddress": "[parameters('vmStaticIP')]",
+                  "publicIPAddressVersion": "IPv4",
+                  "publicIPAllocationMethod": "Static",
+                "subnet": {
+                  "id": "[parameters('vmSubnetId')]"
+                }
+              }
+            }
+          ],
+          "enableIPForwarding": false
+        },    
+        "type": "Microsoft.Network/networkInterfaces"
+      },      
+  
+      {      
+        "apiVersion": "2019-07-01",
+        "comments": "Compute",
+        "location": "[resourceGroup().location]",
+        "name": "[parameters('vmName')]",
+             "dependsOn": [
+          "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), '-nic'))]"
+          
+        ],
+         "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('vmSize')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+                          "publisher": "MicrosoftWindowsServer",
+                          "offer": "WindowsServer",
+                          "sku": "2016-Datacenter",
+                          "version": "latest"
+            },
+            "osDisk": {
+              "name": "[concat(parameters('vmName'), '-', 'OsDisk')]",
+              "osType": "Windows",
+              "createOption": "FromImage",
+              "caching": "ReadWrite",
+              "managedDisk": {
+                "storageAccountType": "Premium_LRS"
+              }            
+            },
+            "datadisks": []
+          },
+          "osProfile": {
+            "computerName": "[parameters('vmName')]",
+            "adminUsername": "[parameters('vmAdminUserName')]",
+            "adminPassword": "[parameters('vmAdminPassword')]",
+            "windowsConfiguration": {
+             "provisionVMAgent": true       
+            }
+          },
+          "allowExtensionOperations": true,
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), '-nic'))]"
+            
+              }
+            ]
+          }
+        },     
+        "type": "Microsoft.Compute/virtualMachines"
+      },
+      
+      {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "apiVersion": "2019-07-01",
+        "name": "[concat(parameters('vmName'), '/CustomScriptExtension')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+        ],
+        "properties": {
+            "autoUpgradeMinorVersion": true,
+            "publisher": "Microsoft.Compute",
+            "type": "CustomScriptExtension",
+            "typeHandlerVersion": "1.9",
+            "settings": {
+                "fileUris": [
+                  "https://raw.githubusercontent.com/devsheoran/scripts/master/dnsserversettings.ps1"  
+                ],
+                "commandToExecute": "powershell.exe dnsserversettings.ps1"
+            },
+            "protectedSettings": {}
+        }
+    }
+      
+    ]
+  }
+  
