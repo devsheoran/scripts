@@ -1,0 +1,124 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {        
+      
+      "vmSize": {
+        "type": "string",
+        "defaultValue": "Standard_DS1_v2"
+      },
+      "vmName-Prefix": {      
+        "type": "string",
+        "defaultValue": "vm-spoke-0"
+      },
+      "vmName-startIndex": {
+        "defaultValue": "0",
+        "type": "int",
+        "metadata": {
+          "description": "Start index for calculating the name for the series of machines."
+        }
+      },
+      "vmAdminUsername": {
+        "type": "string"
+      },
+      "vmAdminPassword": {
+        "type": "securestring"
+      },
+      "subscriptionId": {
+        "type": "string"
+      },
+      "rigSize": {
+        "type": "int",
+        "Defaultvalue":1
+      },   
+     
+      "vmSubnetId":{
+        "type":"string"
+      }
+      },
+   
+    "resources": [
+      {    
+        "apiVersion": "2019-07-01",
+        "comments": "Network Interface for spoke servers",
+        "dependsOn": [],
+        "copy": {
+          "name": "nicLoop",
+          "count": "[parameters('rigSize')]"
+        },
+        "location": "[resourceGroup().location]",
+        "name": "[concat(parameters('vmName-Prefix'), copyIndex(parameters('vmName-startIndex')), '-nic')]",
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "NicIPConfigName1",
+              "properties": {
+                "privateIPAllocationMethod": "Dynamic",
+                "subnet": {
+                  "id": "[parameters('vmSubnetId')]"
+                }
+              }
+            }
+          ],
+          "enableIPForwarding": false
+        },    
+        "type": "Microsoft.Network/networkInterfaces"
+      },     
+      {      
+        "apiVersion": "2019-07-01",
+        "comments": "VM for Spoke",
+        "copy": {
+          "name": "computeLoop",
+          "count": "[parameters('rigSize')]"
+        },
+        "dependsOn": [
+          "nicLoop"      
+        ],
+        "location": "[resourceGroup().location]",
+        "name": "[concat(parameters('vmName-Prefix'), copyIndex(parameters('vmName-startIndex')))]",
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('vmSize')]"
+          },
+          "storageProfile": {
+            "imageReference": {
+                          "publisher": "MicrosoftWindowsServer",
+                          "offer": "WindowsServer",
+                          "sku": "2016-Datacenter",
+                          "version": "latest"
+            },
+            "osDisk": {
+              "name": "[concat(parameters('vmName-Prefix'), copyIndex(parameters('vmName-startIndex')), '-', 'OsDisk')]",
+              "osType": "Windows",
+              "createOption": "FromImage",
+              "caching": "ReadWrite",
+              "managedDisk": {
+                "storageAccountType": "Premium_LRS"
+              }            
+            },
+            "datadisks": []
+          },
+          "osProfile": {
+            "computerName": "[concat(parameters('vmName-Prefix'), copyIndex(parameters('vmName-startIndex')))]",
+            "adminUsername": "[parameters('vmAdminUserName')]",
+            "adminPassword": "[parameters('vmAdminPassword')]",
+            "windowsConfiguration": {
+              "provisionVMAgent": true       
+            }
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName-Prefix'), copyIndex(parameters('vmName-startIndex')), '-nic'))]"
+              }
+            ]
+          }
+        },     
+        "type": "Microsoft.Compute/virtualMachines"
+      }
+      
+      
+      
+    ]
+  }
+  
