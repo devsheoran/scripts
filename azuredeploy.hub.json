@@ -38,8 +38,8 @@
               "name": "NicIPConfigName",
               "properties": {
                 "ipAddress": "[parameters('vmStaticIP')]",
-                  "publicIPAddressVersion": "IPv4",
-                  "publicIPAllocationMethod": "Static",
+                  "privateIPAddressVersion": "IPv4",
+                  "privateIPAllocationMethod": "Static",
                 "subnet": {
                   "id": "[parameters('vmSubnetId')]"
                 }
