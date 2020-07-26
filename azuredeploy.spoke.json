@@ -23,15 +23,11 @@
       },
       "vmAdminPassword": {
         "type": "securestring"
-      },
-      "subscriptionId": {
-        "type": "string"
-      },
+      },     
       "rigSize": {
         "type": "int",
         "Defaultvalue":1
-      },   
-     
+      },
       "vmSubnetId":{
         "type":"string"
       }
