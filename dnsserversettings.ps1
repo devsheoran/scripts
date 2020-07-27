@@ -1,19 +1,15 @@
-param ($rgName, $dnsZone)
+param ($rgName, $dnsZone, $vmAdminUserName, $vmAdminPwd)
 
 $Vms = Get-AzureRmVM -ResourceGroupName $rgName
-
-$templateUri = "C:\repo\ntc\ntc.infra\ntc.infra\ARM-Templates\azuredeploy.customextension.json"
-
-
-$vmAdminUserName ='adminuser'
-$vmAdminPassword=(ConvertTo-SecureString "P1sswor4@2020" -AsPlainText -Force)
+$templateUri = "https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.customextension.json"
+$vmAdminPassword=(ConvertTo-SecureString $vmAdminPwd -AsPlainText -Force)
 $subscriptionID = (Get-AzureRMContext).Subscription.id
 $extensionScriptHub ="powershell.exe"
 
 foreach($vm in $Vms)
 {
 $nic = Get-AzureRmNetworkInterface -ResourceGroupName $rgName -Name  ($vm.Name + "-nic") 
-  if($vm.Name -eq 'vm-ad-01')
+   if ($vm.Name -like '*-hub-*')
   {
     $vmSubnetIdHub=$nic.IpConfigurations[0].Subnet.Id
     $vmStaticIPHub=$nic.IpConfigurations[0].PrivateIpAddress
