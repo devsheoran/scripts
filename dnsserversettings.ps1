@@ -10,8 +10,8 @@ $Vms = Get-AzureRmVM -ResourceGroupName $rgName
 $vmAdminPassword=(ConvertTo-SecureString $vmAdminPwd -AsPlainText -Force)
 $subscriptionID = (Get-AzureRMContext).Subscription.id
 $zonefile = $dnsZone + ".dns"
-[string]$extensionScriptHub ="powershell.exe Install-WindowsFeature DNS -IncludeManagementTools;Add-DnsServerPrimaryZone -Name" + " " + $dnsZone  + " " +"-ZoneFile"+ " " + $zonefile + ";"
-[string]$extensionScriptHubForwardLookup=''
+$extensionScriptHub ="powershell.exe Add-DnsServerPrimaryZone -Name" + " " + $dnsZone  + " " +"-ZoneFile"+ " " + $zonefile + ";"
+$extensionScriptHubForwardLookup=''
 
 #Enable DNS Feature and Create DNS Zone
 DeployCustomScript $rgName $templateUri $extensionScriptHub
@@ -20,7 +20,7 @@ foreach($vm in $Vms)
 {
 $nic = Get-AzureRmNetworkInterface -ResourceGroupName $rgName -Name  ($vm.Name + "-nic") 
 $extensionScriptHubForwardLookup =""
-   if ($vm.Name -like '*-hub-*')
+   if ($vm.Name -like '*-ad-*')
   {
     $vmSubnetIdHub=$nic.IpConfigurations[0].Subnet.Id
     $vmStaticIPHub=$nic.IpConfigurations[0].PrivateIpAddress
@@ -28,7 +28,7 @@ $extensionScriptHubForwardLookup =""
     $vmSizeHub=$vm.HardwareProfile.VmSize
    
     $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + "; ")
-    
+ 
     #DNS Forward lookup for Hub VM
     DeployCustomScript $rgName $templateUri $extensionScriptHubForwardLookup
     
@@ -36,13 +36,16 @@ $extensionScriptHubForwardLookup =""
   if ($vm.Name -like '*-spoke-*')
   {   
     $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + "; ")
+    
     #DNS Forward lookup for spoke VMs
     DeployCustomScript $rgName $templateUri $extensionScriptHubForwardLookup
   
   }
 }
+
 function DeployCustomScript($rgName,$templateUri,$customScript)
 {
+
 $parameters = @{}
 $parameters.Add(“vmAdminUsername”, $vmAdminUserName)
 $parameters.Add(“vmAdminPassword”, $vmAdminPassword)
@@ -53,5 +56,7 @@ $parameters.Add("vmSize", $vmSizeHub)
 $parameters.Add("extensionScript",$customScript)  
 New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName  -TemplateFile $templateUri -TemplateParameterObject $parameters -Verbose
 }
+
+
 
 
