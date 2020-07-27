@@ -222,7 +222,7 @@
        "vmAdminPassword":{"value": "[parameters('vmAdminPassword')]"},   
        "vmStaticIP":{"value": "[variables('vmStaticIPHub')]"},         
        "vmSubnetId":{"value": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetNameHub'), '/subnets/', variables('subnetNameHub'))]"},
-       "extensionScript":{"value": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools; Add-DnsServerPrimaryZone -Name parameters('dnsIdentifier') -ZoneFile [concat(parameters('dnsIdentifier'),'.dns')];"}
+       "extensionScript":{"value": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools; Add-DnsServerPrimaryZone -Name [parameters('dnsIdentifier')] -ZoneFile [concat(parameters('dnsIdentifier'),'.dns')];"}
      
      }
     },
