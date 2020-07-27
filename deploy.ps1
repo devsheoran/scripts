@@ -15,10 +15,9 @@ $parameters.Add("subscriptionId","$subscriptionID")
 $parameters.Add("dnsIdentifier",$dnsIdentifier)
 $parameters.Add("deployVnet",$deployVnet)
 
-Test-AzureRmResourceGroupDeployment -ResourceGroupName $rgName  -TemplateFile $templateUri -TemplateParameterObject $parameters -Verbose
+New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName -TemplateFile $templateUri -TemplateParameterObject $parameters -Verbose
 
 #Set DNS Server - Forward lookup
 $Script = Invoke-WebRequest 'https://raw.githubusercontent.com/devsheoran/scripts/master/dnsserversettings.ps1'
 $ScriptBlock = [Scriptblock]::Create($Script.Content)
 Invoke-Command -ScriptBlock $ScriptBlock -ArgumentList ($args + @($rgName ,$dnsIdentifier,$vmAdminUserName,$vmAdminPassword))
-
