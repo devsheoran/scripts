@@ -23,11 +23,13 @@
       },
       "vmAdminPassword": {
         "type": "securestring"
-      },     
+      },
+  
       "rigSize": {
         "type": "int",
-        "Defaultvalue":1
-      },
+        "Defaultvalue":2
+      },   
+     
       "vmSubnetId":{
         "type":"string"
       }
@@ -112,9 +114,15 @@
         },     
         "type": "Microsoft.Compute/virtualMachines"
       }
-      
-      
-      
-    ]
+    ],
+    "outputs": {
+      "spokeVmIPs": {
+          "type": "array",
+          "copy": {
+              "count": "[parameters('rigSize')]",
+              "input": "[reference(concat(parameters('vmName-Prefix'), copyIndex(parameters('vmName-startIndex')), '-nic')).ipConfigurations[0].properties.privateIPAddress]"
+          }
+      }
+  }
   }
   
