@@ -10,7 +10,7 @@ $Vms = Get-AzureRmVM -ResourceGroupName $rgName
 $vmAdminPassword=(ConvertTo-SecureString $vmAdminPwd -AsPlainText -Force)
 $subscriptionID = (Get-AzureRMContext).Subscription.id
 $zonefile = $dnsZone + ".dns"
-$extensionScriptHub ="powershell.exe Add-DnsServerPrimaryZone -Name" + " " + $dnsZone  + " " +"-ZoneFile"+ " " + $zonefile + ";"
+$extensionScriptHub ="powershell.exe Add-DnsServerPrimaryZone -Name" + " " + $dnsZone  + " " +"-ZoneFile"+ " " + $zonefile + " -Confirm:$FALSE;"
 $extensionScriptHubForwardLookup=''
 
 #Enable DNS Feature and Create DNS Zone
@@ -27,7 +27,7 @@ $extensionScriptHubForwardLookup =""
     $vmNameHub=$vm.Name 
     $vmSizeHub=$vm.HardwareProfile.VmSize
    
-    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + "; ")
+    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + " -Confirm:$FALSE; ")
  
     #DNS Forward lookup for Hub VM
     DeployCustomScript $rgName $templateUri $extensionScriptHubForwardLookup
@@ -35,7 +35,7 @@ $extensionScriptHubForwardLookup =""
   }
   if ($vm.Name -like '*-spoke-*')
   {   
-    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + "; ")
+    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + " -Confirm:$FALSE; ")
     
     #DNS Forward lookup for spoke VMs
     DeployCustomScript $rgName $templateUri $extensionScriptHubForwardLookup
