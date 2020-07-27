@@ -4,7 +4,9 @@ $Vms = Get-AzureRmVM -ResourceGroupName $rgName
 $templateUri = "https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.customextension.json"
 $vmAdminPassword=(ConvertTo-SecureString $vmAdminPwd -AsPlainText -Force)
 $subscriptionID = (Get-AzureRMContext).Subscription.id
-$extensionScriptHub ="powershell.exe"
+$zonefile = $dnsZone + ".dns"
+$extensionScriptHub ="powershell.exe Install-WindowsFeature DNS -IncludeManagementTools;Add-DnsServerPrimaryZone -Name " + $dnsZone  + "-ZoneFile " + $zonefile + ";"
+
 
 foreach($vm in $Vms)
 {
