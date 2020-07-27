@@ -1,0 +1,57 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_DS1_v2"
+          },   
+          "vmAdminUsername": {
+            "type": "string"
+          },
+          "vmAdminPassword": {
+            "type": "securestring"
+          },     
+            
+          "vmSubnetId":{
+            "type":"string"
+          },
+          "vmStaticIP":{
+            "type":"string"
+          },
+          "vmName":{
+            "type":"string"
+          },
+          "extensionScript":{
+              "type": "string",
+              "defaultValue": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools; Add-DnsServerPrimaryZone -Name 'gb.dev.com' -ZoneFile 'gb.dev.com.dns';"
+          }
+          
+
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "linkedTemplateHubVm",
+            "properties": {
+              "mode": "Incremental",
+              "templateLink": {
+               "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.hub.json",
+               "contentVersion":"1.0.0.0"
+              },
+              "parameters": {
+               "vmSize":{"value": "[parameters('vmSize')]"},
+               "vmName":{"value": "[parameters('vmName')]"},       
+               "vmAdminUsername":{"value": "[parameters('vmAdminUsername')]"},
+               "vmAdminPassword":{"value": "[parameters('vmAdminPassword')]"},   
+               "vmStaticIP":{"value": "[parameters('vmStaticIP')]"},         
+               "vmSubnetId":{"value": "[parameters('vmSubnetId')]"},
+               "extensionScript":{"value": "[parameters('extensionScript')]"}
+             
+             }
+            },
+            "dependsOn": []
+           }
+    ]
+}
