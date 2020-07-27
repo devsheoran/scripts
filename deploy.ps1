@@ -27,4 +27,4 @@ New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName -TemplateFile $tem
 #Set DNS Server - Forward lookup
 $Script = Invoke-WebRequest 'https://raw.githubusercontent.com/devsheoran/scripts/master/dnsserversettings.ps1'
 $ScriptBlock = [Scriptblock]::Create($Script.Content)
-Invoke-Command -ScriptBlock $ScriptBlock -ArgumentList ($args + @($rgName ,$dnsIdentifier,$vmAdminUserName,$vmAdminPassword))
+Invoke-Command -ScriptBlock $ScriptBlock -ArgumentList ($args + @($rgName ,$dnsIdentifier,$vmAdminUserName,$vmAdminPassword, $deployVnet))
