@@ -18,12 +18,12 @@ $nic = Get-AzureRmNetworkInterface -ResourceGroupName $rgName -Name  ($vm.Name +
     
   }
   if ($vm.Name -like '*-spoke-*')
-  {
-    $vm.Name 
+  {   
     $extensionScriptHub +=" Add-DnsServerResourceRecordA -Name " + $vm.Name  +" -ZoneName " + $dnsZone +" -IPv4Address " + $nic.IpConfigurations[0].PrivateIpAddress + "; " 
   }
 }
-
+Write-Host '****CustomScript****'
+Write-Host $extensionScriptHub 
 
 $parameters = @{}
 $parameters.Add(“vmAdminUsername”, $vmAdminUserName)
@@ -34,5 +34,4 @@ $parameters.Add("vmName", $vmNameHub)
 $parameters.Add("vmSize", $vmSizeHub)
 $parameters.Add("extensionScript",$extensionScriptHub)
 
-
-New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName  -TemplateFile $templateUri -TemplateParameterObject $parameters -Debug  -Verbose
+New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName  -TemplateFile $templateUri -TemplateParameterObject $parameters -Verbose
