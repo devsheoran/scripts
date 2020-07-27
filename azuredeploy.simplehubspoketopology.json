@@ -28,7 +28,7 @@
       },
       "dnsIdentifier":{
         "type": "string",  
-        "defaultValue": "uk.ntc.com"}
+        "defaultValue": "uk.dev.com"}
     
 },
 "variables": {
