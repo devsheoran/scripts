@@ -22,7 +22,12 @@
       },
       "vmName":{
         "type":"string"
-      }     
+      },
+      "extensionScript":{
+          "type": "string",
+          "defaultValue": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools; Add-DnsServerPrimaryZone -Name 'gb.dev.com' -ZoneFile 'gb.dev.com.dns';"
+      }
+      
       },
    
     "resources": [           
@@ -116,13 +121,15 @@
             "publisher": "Microsoft.Compute",
             "type": "CustomScriptExtension",
             "typeHandlerVersion": "1.9",
-            "settings": {                
+            "settings": {               
                 
-                "commandToExecute": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools"
+                "commandToExecute": "[parameters('extensionScript')]"
             },
             "protectedSettings": {}
         }
-    }     
+    }
+   
+      
       
     ]
   }
