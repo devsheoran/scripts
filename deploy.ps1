@@ -1,4 +1,4 @@
-param ($rgName, $location, $dnsZone, $vmAdminUserName, $vmAdminPwd, $deployVnet)
+param ($rgName, $dnsZone, $vmAdminUserName, $vmAdminPwd, $deployVnet)
 
 $templateUri = "https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.simplehubspoketopology.json"
 $dnsIdentifier = $dnsZone
