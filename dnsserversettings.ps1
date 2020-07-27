@@ -10,8 +10,10 @@ $Vms = Get-AzureRmVM -ResourceGroupName $rgName
 $vmAdminPassword=(ConvertTo-SecureString $vmAdminPwd -AsPlainText -Force)
 $subscriptionID = (Get-AzureRMContext).Subscription.id
 $zonefile = $dnsZone + ".dns"
-$extensionScriptHub ="powershell.exe Add-DnsServerPrimaryZone -Name" + " " + $dnsZone  + " " +"-ZoneFile"+ " " + $zonefile + " -Confirm:$FALSE;"
+$extensionScriptHub ="powershell.exe Add-DnsServerPrimaryZone -Name" + " " + $dnsZone  + " " +"-ZoneFile"+ " " + $zonefile + ";"
 $extensionScriptHubForwardLookup=''
+
+$extensionScriptHub 
 
 #Enable DNS Feature and Create DNS Zone
 DeployCustomScript $rgName $templateUri $extensionScriptHub
@@ -26,19 +28,20 @@ $extensionScriptHubForwardLookup =""
     $vmStaticIPHub=$nic.IpConfigurations[0].PrivateIpAddress
     $vmNameHub=$vm.Name 
     $vmSizeHub=$vm.HardwareProfile.VmSize
+  
    
-    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + " -Confirm:$FALSE; ")
- 
+    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + ";")
+    $extensionScriptHubForwardLookup
     #DNS Forward lookup for Hub VM
     DeployCustomScript $rgName $templateUri $extensionScriptHubForwardLookup
     
   }
   if ($vm.Name -like '*-spoke-*')
   {   
-    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + " -Confirm:$FALSE; ")
+    $extensionScriptHubForwardLookup = [string]::Concat("powershell.exe Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + ";")
     
     #DNS Forward lookup for spoke VMs
-    DeployCustomScript $rgName $templateUri $extensionScriptHubForwardLookup
+   DeployCustomScript $rgName $templateUri $extensionScriptHubForwardLookup
   
   }
 }
@@ -54,9 +57,6 @@ $parameters.Add(“vmStaticIP”, $vmStaticIPHub )
 $parameters.Add("vmName", $vmNameHub)
 $parameters.Add("vmSize", $vmSizeHub)
 $parameters.Add("extensionScript",$customScript)  
-New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName  -TemplateFile $templateUri -TemplateParameterObject $parameters -Verbose
+New-AzureRmResourceGroupDeployment -ResourceGroupName $rgName  -TemplateFile $templateUri -TemplateParameterObject $parameters -Force -Verbose
 }
-
-
-
 
