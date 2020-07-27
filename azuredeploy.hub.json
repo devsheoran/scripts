@@ -106,28 +106,7 @@
           }
         },     
         "type": "Microsoft.Compute/virtualMachines"
-      },
-      
-      {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "apiVersion": "2019-07-01",
-        "name": "[concat(parameters('vmName'), '/CustomScriptExtension')]",
-        "location": "[resourceGroup().location]",
-        "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-        ],
-        "properties": {
-            "autoUpgradeMinorVersion": true,           
-            "publisher": "Microsoft.Compute",
-            "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.9",
-            "settings": {               
-                
-                "commandToExecute": "[parameters('extensionScript')]"
-            },
-            "protectedSettings": {}
-        }
-    }
+      }
    
       
       
