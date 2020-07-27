@@ -5,7 +5,7 @@ $templateUri = "https://raw.githubusercontent.com/devsheoran/scripts/master/azur
 $vmAdminPassword=(ConvertTo-SecureString $vmAdminPwd -AsPlainText -Force)
 $subscriptionID = (Get-AzureRMContext).Subscription.id
 $zonefile = $dnsZone + ".dns"
-$extensionScriptHub ="powershell.exe Install-WindowsFeature DNS -IncludeManagementTools;Add-DnsServerPrimaryZone -Name " + $dnsZone  + " -ZoneFile " + $zonefile + ";"
+$extensionScriptHub ="powershell.exe Install-WindowsFeature DNS -IncludeManagementTools;Add-DnsServerPrimaryZone -Name" + " " + $dnsZone  + " " +"-ZoneFile"+ " " + $zonefile + ";"
 
 
 foreach($vm in $Vms)
@@ -21,7 +21,7 @@ $nic = Get-AzureRmNetworkInterface -ResourceGroupName $rgName -Name  ($vm.Name +
   }
   if ($vm.Name -like '*-spoke-*')
   {   
-    $extensionScriptHub +=" Add-DnsServerResourceRecordA -Name " + $vm.Name  +" -ZoneName " + $dnsZone +" -IPv4Address " + $nic.IpConfigurations[0].PrivateIpAddress + "; " 
+    $extensionScriptHub = [string]::Concat($extensionScriptHub,"Add-DnsServerResourceRecordA -Name" + " " + $vm.Name  + " " + "-ZoneName" + " " + $dnsZone+ " " +"-IPv4Address" + " " + $nic.IpConfigurations[0].PrivateIpAddress + "; ")
   }
 }
 Write-Host '****CustomScript****'
