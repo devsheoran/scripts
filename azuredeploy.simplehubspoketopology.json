@@ -28,7 +28,7 @@
       },
       "dnsIdentifier":{
         "type": "string",  
-        "defaultValue": "uk.dev.com"}
+        "defaultValue": "uk.ntc.com"}
     
 },
 "variables": {
@@ -56,9 +56,9 @@
     "vmNameHub":"vm-ad-01",
     "vmStaticIPHub":"10.0.0.7",
 
-    "vmNameJumpServer":"JumpServer-01"
+    "vmNameJumpServer":"JumpServer-01",
 
-    
+    "dnsZone":"[parameters('dnsIdentifier')]"
 
    
     
@@ -222,7 +222,7 @@
        "vmAdminPassword":{"value": "[parameters('vmAdminPassword')]"},   
        "vmStaticIP":{"value": "[variables('vmStaticIPHub')]"},         
        "vmSubnetId":{"value": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetNameHub'), '/subnets/', variables('subnetNameHub'))]"},
-       "extensionScript":{"value": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools; Add-DnsServerPrimaryZone -Name [parameters('dnsIdentifier')] -ZoneFile [concat(parameters('dnsIdentifier'),'.dns')];"}
+       "extensionScript":{"value": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools; Add-DnsServerPrimaryZone -Name variables('dnsZone') -ZoneFile [concat(variables('dnsZone'),'.dns')];"}
      
      }
     },
