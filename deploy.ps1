@@ -1,5 +1,12 @@
-param ($rgName, $location, $dnsZone, $vmAdminUserName, $vmAdminPwd,$deployVnet)
+param ($rgName, $location, $dnsZone, $vmAdminUserName, $vmAdminPwd, $deployVnet)
+
+Write-Output $rgName
+Write-Output $location
+Write-Host $dnsZone
+Write-Host $vmAdminUserName
+Write-Host $vmAdminPwd
 Write-Host $deployVnet
+
 New-AzureRmResourceGroup -Name $rgName -Location $location
 
 $templateUri = "https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.simplehubspoketopology.json"
