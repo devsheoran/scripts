@@ -5,7 +5,7 @@ $templateUri = "https://raw.githubusercontent.com/devsheoran/scripts/master/azur
 $vmAdminPassword=(ConvertTo-SecureString $vmAdminPwd -AsPlainText -Force)
 $subscriptionID = (Get-AzureRMContext).Subscription.id
 $zonefile = $dnsZone + ".dns"
-$extensionScriptHub ="powershell.exe Install-WindowsFeature DNS -IncludeManagementTools;Add-DnsServerPrimaryZone -Name " + $dnsZone  + "-ZoneFile " + $zonefile + ";"
+$extensionScriptHub ="powershell.exe Install-WindowsFeature DNS -IncludeManagementTools;Add-DnsServerPrimaryZone -Name " + $dnsZone  + " -ZoneFile " + $zonefile + ";"
 
 
 foreach($vm in $Vms)
