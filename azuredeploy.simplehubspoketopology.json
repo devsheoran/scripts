@@ -1,0 +1,315 @@
+{
+"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+"contentVersion": "1.0.0.0",
+"parameters": {
+
+    "vmSize": {
+        "type": "string",
+        "defaultValue": "Standard_DS1_v2"
+      },
+      
+      "vmAdminUsername": {
+        "type": "string"
+      },
+      "vmAdminPassword": {
+        "type": "securestring"
+      },
+      "rigSizeSpoke":{
+          "type": "int",
+          "defaultValue": 2
+      },
+      "subscriptionId":{
+          "type":"string"
+      },
+
+      "deployVnet":{
+          "type": "string",
+          "defaultValue": "no"
+      },
+      "dnsIdentifier":{
+        "type": "string",  
+        "defaultValue": "uk.ntc.com"}
+    
+},
+"variables": {
+    "vnetNameHub": "test-vnet-01",      
+    "vnetAddressPrefixHub": "10.0.0.0/24",
+    "subnetPrefixHub": "10.0.0.0/25",
+    "subnetNameHub": "hub-sn-01",
+
+    "vnetNameSpoke1": "spoke-vnet01",      
+    "vnetAddressPrefixSpoke1": "10.1.0.0/24",
+    "subnetPrefixSpoke1": "10.1.0.0/25",
+    "subnetNameSpoke1": "spk-sn-01",
+
+    "vnetNameSpoke2": "spoke-vnet02",      
+    "vnetAddressPrefixSpoke2": "10.2.0.0/24",
+    "subnetPrefixSpoke2": "10.2.0.0/25",
+    "subnetNameSpoke2": "spk-sn-02",
+
+    "vmNamePrefixSpoke1":"vm-spoke-0",
+    "vmNameStartIndexSpoke1":1,    
+
+    "vmNamePrefixSpoke2":"vm-spoke-0",
+    "vmNameStartIndexSpoke2":"[add(parameters('rigSizeSpoke'), 1)]"   , 
+
+    "vmNameHub":"vm-ad-01",
+    "vmStaticIPHub":"10.0.0.7",
+
+    "vmNameJumpServer":"JumpServer-01"
+
+    
+
+   
+    
+},
+"resources": [
+    {
+    "condition": "[equals(parameters('deployVnet'),'yes')]",
+     "type": "Microsoft.Resources/deployments",
+     "apiVersion": "2019-10-01",
+     "name": "linkedTemplateHubVnet",
+     "properties": {
+       "mode": "Incremental",
+       "templateLink": {
+        "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.vnet.json",
+        "contentVersion":"1.0.0.0"
+       },
+       "parameters": {
+        "vnetName":{"value": "[variables('vnetNameHub')]"},
+        "vnetAddressPrefix":{"value": "[variables('vnetAddressPrefixHub')]"},
+        "subnetPrefix":{"value": "[variables('subnetPrefixHub')]"},
+        "subnetName":{"value": "[variables('subnetNameHub')]"}
+      }
+     }
+    },
+    {
+        "condition": "[equals(parameters('deployVnet'),'yes')]",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2019-10-01",
+        "name": "linkedTemplateSpoke1Vnet",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+           "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.vnet.json",
+           "contentVersion":"1.0.0.0"
+          },
+          "parameters": {
+           "vnetName":{"value": "[variables('vnetNameSpoke1')]"},
+           "vnetAddressPrefix":{"value": "[variables('vnetAddressPrefixSpoke1')]"},
+           "subnetPrefix":{"value": "[variables('subnetPrefixSpoke1')]"},
+           "subnetName":{"value": "[variables('subnetNameSpoke1')]"}
+         }
+        }
+    },
+    {
+        "condition": "[equals(parameters('deployVnet'),'yes')]",
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2019-10-01",
+        "name": "linkedTemplateSpoke2Vnet",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+           "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.vnet.json",
+           "contentVersion":"1.0.0.0"
+          },
+          "parameters": {
+           "vnetName":{"value": "[variables('vnetNameSpoke2')]"},
+           "vnetAddressPrefix":{"value": "[variables('vnetAddressPrefixSpoke2')]"},
+           "subnetPrefix":{"value": "[variables('subnetPrefixSpoke2')]"},
+           "subnetName":{"value": "[variables('subnetNameSpoke2')]"}
+         }
+        }
+    },
+//Peering
+    {
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2019-10-01",
+        "name": "linkedTemplatePeeringHubSpoke1",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+           "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.vnetpeering.json",
+           "contentVersion":"1.0.0.0"
+          },
+          "parameters": {
+           "localVnetName":{"value": "[variables('vnetNameHub')]"},
+           "remoteVnetName":{"value": "[variables('vnetNameSpoke1')]"}         
+         }
+    },
+        "dependsOn": [
+          "linkedTemplateHubVnet",
+          "linkedTemplateSpoke1Vnet"
+        ]
+    },
+    {
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2019-10-01",
+        "name": "linkedTemplatePeeringSpoke1Hub",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+           "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.vnetpeering.json",
+           "contentVersion":"1.0.0.0"
+          },
+          "parameters": {
+           "localVnetName":{"value": "[variables('vnetNameSpoke1')]"},
+           "remoteVnetName":{"value": "[variables('vnetNameHub')]"}         
+         }        
+        },
+        "dependsOn": [
+            "linkedTemplateHubVnet",
+            "linkedTemplateSpoke1Vnet"
+        ]
+    },
+    {
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2019-10-01",
+        "name": "linkedTemplatePeeringHubSpoke2",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+           "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.vnetpeering.json",
+           "contentVersion":"1.0.0.0"
+          },
+          "parameters": {
+           "localVnetName":{"value": "[variables('vnetNameHub')]"},
+           "remoteVnetName":{"value": "[variables('vnetNameSpoke2')]"}         
+         }
+        },
+        "dependsOn": [
+            "linkedTemplateHubVnet",
+            "linkedTemplateSpoke2Vnet"
+        ]
+    },      
+    {
+        "type": "Microsoft.Resources/deployments",
+        "apiVersion": "2019-10-01",
+        "name": "linkedTemplatePeeringSpoke2Hub",
+        "properties": {
+          "mode": "Incremental",
+          "templateLink": {
+           "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.vnetpeering.json",
+           "contentVersion":"1.0.0.0"
+          },
+          "parameters": {
+           "localVnetName":{"value": "[variables('vnetNameSpoke2')]"},
+           "remoteVnetName":{"value": "[variables('vnetNameHub')]"}
+         
+         }
+        },
+        "dependsOn": [
+            "linkedTemplateHubVnet",
+          "linkedTemplateSpoke2Vnet"
+        ]
+    },
+
+   //Hub VM
+ {
+    "type": "Microsoft.Resources/deployments",
+    "apiVersion": "2019-10-01",
+    "name": "linkedTemplateHubVm",
+    "properties": {
+      "mode": "Incremental",
+      "templateLink": {
+       "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.hub.json",
+       "contentVersion":"1.0.0.0"
+      },
+      "parameters": {
+       "vmSize":{"value": "[parameters('vmSize')]"},
+       "vmName":{"value": "[variables('vmNameHub')]"},       
+       "vmAdminUsername":{"value": "[parameters('vmAdminUsername')]"},
+       "vmAdminPassword":{"value": "[parameters('vmAdminPassword')]"},   
+       "vmStaticIP":{"value": "[variables('vmStaticIPHub')]"},         
+       "vmSubnetId":{"value": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetNameHub'), '/subnets/', variables('subnetNameHub'))]"},
+       "extensionScript":{"value": "powershell.exe Install-WindowsFeature DNS -IncludeManagementTools; Add-DnsServerPrimaryZone -Name parameters('dnsIdentifier') -ZoneFile [concat(parameters('dnsIdentifier'),'.dns')];"}
+     
+     }
+    },
+    "dependsOn": [
+        "linkedTemplateHubVnet"
+    ]
+   } ,  
+ //Spoke VMs
+ 
+   {
+    "type": "Microsoft.Resources/deployments",
+    "apiVersion": "2019-10-01",
+    "name": "linkedTemplateSpoke1Vm",
+    "properties": {
+      "mode": "Incremental",
+      "templateLink": {
+       "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.spoke.json",
+       "contentVersion":"1.0.0.0"
+      },
+      "parameters": {
+       "vmSize":{"value": "[parameters('vmSize')]"},
+       "vmName-Prefix":{"value": "[variables('vmNamePrefixSpoke1')]"},
+       "vmName-startIndex":{"value": "[variables('vmNameStartIndexSpoke1')]"},
+       "vmAdminUsername":{"value": "[parameters('vmAdminUsername')]"},
+       "vmAdminPassword":{"value": "[parameters('vmAdminPassword')]"},
+       "rigSize":{"value": "[parameters('rigSizeSpoke')]"},      
+       "vmSubnetId":{"value": "[concat('/subscriptions/', subscription().subscriptionId , '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetNameSpoke1'), '/subnets/', variables('subnetNameSpoke1'))]"}
+     
+     }
+    },
+    "dependsOn": [
+        "linkedTemplateSpoke1Vnet"
+    ]
+    
+   },
+
+   {
+    "type": "Microsoft.Resources/deployments",
+    "apiVersion": "2019-10-01",
+    "name": "linkedTemplateSpoke2Vm",
+    "properties": {
+      "mode": "Incremental",
+      "templateLink": {
+       "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.spoke.json",
+       "contentVersion":"1.0.0.0"
+      },
+      "parameters": {
+       "vmSize":{"value": "[parameters('vmSize')]"},
+       "vmName-Prefix":{"value": "[variables('vmNamePrefixSpoke2')]"},
+       "vmName-startIndex":{"value": "[variables('vmNameStartIndexSpoke2')]"},
+       "vmAdminUsername":{"value": "[parameters('vmAdminUsername')]"},
+       "vmAdminPassword":{"value": "[parameters('vmAdminPassword')]"},
+       "rigSize":{"value": "[parameters('rigSizeSpoke')]"},      
+       "vmSubnetId":{"value": "[concat('/subscriptions/', subscription().subscriptionId , '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetNameSpoke2'), '/subnets/', variables('subnetNameSpoke2'))]"}
+     
+     }
+    },
+    "dependsOn": [
+        "linkedTemplateSpoke2Vnet"
+    ]
+   },
+ 
+
+//Jump Server
+{
+    "type": "Microsoft.Resources/deployments",
+    "apiVersion": "2019-10-01",
+    "name": "linkedTemplateJumpServer",
+    "properties": {
+      "mode": "Incremental",
+      "templateLink": {
+       "uri":"https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.jumpserver.json",
+       "contentVersion":"1.0.0.0"
+      },
+      "parameters": {       
+       "virtualMachineName":{"value": "[variables('vmNameJumpServer')]"},       
+       "adminUsername":{"value": "[parameters('vmAdminUsername')]"},
+       "adminPassword":{"value": "[parameters('vmAdminPassword')]"},              
+       "vmSubnetId":{"value": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('vnetNameHub'), '/subnets/', variables('subnetNameHub'))]"}
+     
+     }
+    },
+    "dependsOn": [
+        "linkedTemplateHubVnet"
+    ]
+   }
+
+  ]   
+  
+}
