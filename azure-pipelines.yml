@@ -25,6 +25,7 @@ stages:
             csmFileLink: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-1vm-2nics-2subnets-1vnet/azuredeploy.json'
             overrideParameters: '-adminUsername adminuser -adminPassword p2ssword@123'
             deploymentMode: 'Incremental'
+            deploymentOutputs: '$var=ConvertFrom-Json ''$(storageAccountName)'' ; $var.storageAccountName.value'
           
             
                 
