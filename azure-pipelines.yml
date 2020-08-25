@@ -19,7 +19,7 @@ stages:
             azureResourceManagerConnection: 'Visual Studio Ultimate with MSDN(1)(8f925446-95ce-4346-a2d8-009a22c2f698)'
             subscriptionId: '8f925446-95ce-4346-a2d8-009a22c2f698'
             action: 'Create Or Update Resource Group'
-            resourceGroupName: 'task-rg-01'
+            resourceGroupName: 'test-rg-01'
             location: 'UK South'
             templateLocation: 'URL of the file'
             csmFileLink: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-1vm-2nics-2subnets-1vnet/azuredeploy.json'
