@@ -16,10 +16,10 @@ stages:
         - task: AzureResourceManagerTemplateDeployment@3
           inputs:
             deploymentScope: 'Resource Group'
-            azureResourceManagerConnection: 'Visual Studio Ultimate with MSDN(8f925446-95ce-4346-a2d8-009a22c2f698)'
+            azureResourceManagerConnection: 'Visual Studio Ultimate with MSDN(1)(8f925446-95ce-4346-a2d8-009a22c2f698)'
             subscriptionId: '8f925446-95ce-4346-a2d8-009a22c2f698'
             action: 'Create Or Update Resource Group'
-            resourceGroupName: 'tast-tg-01'
+            resourceGroupName: 'task-rg-01'
             location: 'UK South'
             templateLocation: 'URL of the file'
             csmFileLink: 'https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.simplehubspoketopology.json'
