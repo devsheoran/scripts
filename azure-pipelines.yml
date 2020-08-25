@@ -26,7 +26,11 @@ stages:
             overrideParameters: '-adminUsername adminuser -adminPassword p2ssword@123'
             deploymentMode: 'Complete'
             deploymentOutputs: '$var=ConvertFrom-Json ''$(adminUsername)'' ; $var.adminUsername.value'
-          
+        - task: AzurePowerShell@5
+          inputs:
+            azureSubscription: 'Visual Studio Ultimate with MSDN(1)(8f925446-95ce-4346-a2d8-009a22c2f698)'
+            ScriptType: 'InlineScript'
+            Inline: 'az group delete --name test-rg-01'
             
                 
              
