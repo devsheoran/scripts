@@ -24,7 +24,7 @@ stages:
             templateLocation: 'Linked artifact'
             csmFile: 'azuredeploy.simplehubspoketopology.json'
             overrideParameters: '-vmAdminUsername adminuser -vmAdminPassword p2ssword@123 -subscriptionId 8f925446-95ce-4346-a2d8-009a22c2f698 -dnsIdentifier ntc.com'
-            deploymentMode: 'Incremental'
+            deploymentMode: 'Validation'
           
             
                 
