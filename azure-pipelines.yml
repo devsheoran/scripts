@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- "*"
+
+stages:
+  - stage: Build
+    jobs:
+      - job: 'validateandtest'
+        pool:
+          vmimage:windows-latest
+        steps:
+        - task: AzureResourceManagerTemplateDeployment@3
+          inputs:
+            deploymentScope: 'Resource Group'
+            azureResourceManagerConnection: 'Visual Studio Ultimate with MSDN(8f925446-95ce-4346-a2d8-009a22c2f698)'
+            subscriptionId: '8f925446-95ce-4346-a2d8-009a22c2f698'
+            action: 'Create Or Update Resource Group'
+            resourceGroupName: 'tast-tg-01'
+            location: 'UK South'
+            templateLocation: 'Linked artifact'
+            csmFile: 'azuredeploy.simplehubspoketopology.json'
+            overrideParameters: '-vmAdminUsername adminuser -vmAdminPassword p2ssword@123 -subscriptionId 8f925446-95ce-4346-a2d8-009a22c2f698 -dnsIdentifier ntc.com'
+            deploymentMode: 'Incremental'
+          
+            
+                
+             
