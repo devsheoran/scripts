@@ -22,8 +22,9 @@ stages:
             resourceGroupName: 'task-rg-01'
             location: 'UK South'
             templateLocation: 'URL of the file'
-            csmFileLink: 'https://raw.githubusercontent.com/devsheoran/scripts/master/azuredeploy.simplehubspoketopology.json'
-            overrideParameters: '-vmAdminUsername adminuser -vmAdminPassword p2ssword@123 -subscriptionId 8f925446-95ce-4346-a2d8-009a22c2f698 -dnsIdentifier ntc.com'
+            csmFileLink: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-1vm-2nics-2subnets-1vnet/azuredeploy.json'
+            csmParametersFileLink: 'https://github.com/Azure/azure-quickstart-templates/blob/master/101-1vm-2nics-2subnets-1vnet/azuredeploy.parameters.json'
+            overrideParameters: '-adminUsername adminuser -adminPassword p2ssword@123'
             deploymentMode: 'Incremental'
             deploymentOutputs: '$var=ConvertFrom-Json ''$(vmAdminUsername)'' $var.vmAdminUsername.value'
           
