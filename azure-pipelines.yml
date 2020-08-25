@@ -11,7 +11,7 @@ stages:
     jobs:
       - job: 'validateandtest'
         pool:
-          vmimage:windows-latest
+          vmimage:windows-2019
         steps:
         - task: AzureResourceManagerTemplateDeployment@3
           inputs:
