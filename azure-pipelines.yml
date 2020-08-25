@@ -23,7 +23,6 @@ stages:
             location: 'UK South'
             templateLocation: 'URL of the file'
             csmFileLink: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-1vm-2nics-2subnets-1vnet/azuredeploy.json'
-            csmParametersFileLink: 'https://github.com/Azure/azure-quickstart-templates/blob/master/101-1vm-2nics-2subnets-1vnet/azuredeploy.parameters.json'
             overrideParameters: '-adminUsername adminuser -adminPassword p2ssword@123'
             deploymentMode: 'Incremental'
           
