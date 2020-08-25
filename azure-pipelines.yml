@@ -8,6 +8,8 @@ trigger:
 
 stages:
   - stage: Build
+    condition: 
+      and(succeeded(), eq(variables['State'], 'Sandbox'))
     jobs:
       - job: 'validateandtest'
         pool:
