@@ -30,7 +30,7 @@ stages:
             deploymentOutputs: '$var=ConvertFrom-Json ''$(adminUsername)'' ; $var.adminUsername.value'
   - stage: CleanUp
     condition: 
-      and(succeeded(), eq(variables['State'], 'Clean'))
+      and(eq(variables['State'], 'Clean'))
     jobs:
       - job: clean
         pool:
